@@ -189,6 +189,14 @@ INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
 INNER JOIN Jobs J ON Ap.JobID = J.JobID
 INNER JOIN Companies C ON J.CompanyID = C.CompanyID;
 
+{ -- Correct Answer
+  ALTER TABLE Applicants
+ADD City VARCHAR(255),
+  State VARCHAR(255)
+SELECT FirstName, LastName, CONCAT(City, ',', State) AS Location
+FROM Applicants; 
+}
+  
 -- Task 18: Query to retrieve a list of jobs with titles containing either 'Developer' or 'Engineer'
 SELECT JobID, JobTitle
 FROM Jobs
@@ -212,3 +220,8 @@ WHERE
 c.Location = 'austin'
 AND a.Resume LIKE '%[2-9] years%';
 
+{ -- Correct Answer
+SELECT a.FirstName, a.LastName, c.CompanyName
+FROM Applicants a, Company c
+  WHERE c.Location = 'Chennai' AND (a.Resume LIKE '%3 years%' or a.Resume LIKE '%4 years%');
+}
