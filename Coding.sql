@@ -1,5 +1,5 @@
 -- Task 1: SQL script to initialize the CareerHub database
-CREATE DATABASE CareerHUB
+CREATE DATABASE CareerHub
 USE CareerHub
   
 -- Task 2: Tables created successfully with appropriate constraints
