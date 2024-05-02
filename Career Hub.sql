@@ -128,7 +128,15 @@ GROUP BY C.CompanyName
 ORDER BY COUNT(J.JobID) DESC;
 
 -- Task 10: Query to find applicants who have applied for positions in companies located in a specific city and have at least 3 years of experience
+DECLARE @City VARCHAR(255) = 'Chennai';
 
+SELECT DISTINCT A.FirstName, A.LastName
+FROM Applicants A
+INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
+INNER JOIN Jobs J ON Ap.JobID = J.JobID
+INNER JOIN Companies C ON J.CompanyID = C.CompanyID
+WHERE C.Location = @City
+AND A.Resume LIKE '%3 years of experience%'
 
 -- Task 11: Query to retrieve a list of distinct job titles with salaries between $60,000 and $80,000
 SELECT DISTINCT JobTitle, Salary
@@ -172,7 +180,11 @@ INNER JOIN Jobs J ON C.CompanyID = J.CompanyID
 WHERE J.Salary > @AverageSalary;
 
 -- Task 17: Query to display a list of applicants with their names and a concatenated string of their city and state
-
+SELECT A.FirstName, A.LastName, C.Location + ', ' + C.State AS 'City and State'
+FROM Applicants A
+INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
+INNER JOIN Jobs J ON Ap.JobID = J.JobID
+INNER JOIN Companies C ON J.CompanyID = C.CompanyID;
 
 -- Task 18: Query to retrieve a list of jobs with titles containing either 'Developer' or 'Engineer'
 SELECT JobID, JobTitle
@@ -187,5 +199,13 @@ FULL OUTER JOIN Jobs J ON Ap.JobID = J.JobID
 FULL OUTER JOIN Companies C ON J.CompanyID = C.CompanyID;
 
 -- Task 20: List all combinations of applicants and companies where the company is in a specific city and the applicant has more than 2 years of experience
-
+SELECT c.CompanyName,
+CONCAT(a.FirstName, ' ', a.LastName) AS ApplicantName
+FROM  Companies c
+JOIN Jobs j ON j.CompanyID = c.CompanyID
+JOIN Applications app ON j.JobID = app.JobID
+JOIN Applicants a ON app.ApplicantID = a.ApplicantID
+WHERE 
+c.Location = 'austin'
+AND a.Resume LIKE '%[2-9] years%';
 
