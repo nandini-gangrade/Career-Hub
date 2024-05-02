@@ -88,7 +88,8 @@ INSERT INTO Applications (JobID, ApplicantID, ApplicationDate, CoverLetter) VALU
 (4, 4, '2023-04-04', 'I am applying for the Backend Developer role to leverage my skills.'),
 (5, 1, '2023-04-05', 'I am also interested in the Software Engineer position at CodeCrafters.');
 
--- Task 4: Data inserted successfully
+-- Task 4: Ensure the script handles potential errors, such as if the database or tables already exist.
+
 
 -- Task 5: Query to count the number of applications received for each job listing
 SELECT J.JobTitle AS 'Job Title', ISNULL(COUNT(A.ApplicationID), 0) AS 'Application Count'
@@ -127,15 +128,7 @@ GROUP BY C.CompanyName
 ORDER BY COUNT(J.JobID) DESC;
 
 -- Task 10: Query to find applicants who have applied for positions in companies located in a specific city and have at least 3 years of experience
-DECLARE @City VARCHAR(255) = 'Chennai';
 
-SELECT DISTINCT A.FirstName, A.LastName
-FROM Applicants A
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-INNER JOIN Jobs J ON Ap.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID
-WHERE C.Location = @City
-AND A.Resume LIKE '%3 years of experience%';
 
 -- Task 11: Query to retrieve a list of distinct job titles with salaries between $60,000 and $80,000
 SELECT DISTINCT JobTitle, Salary
@@ -179,11 +172,7 @@ INNER JOIN Jobs J ON C.CompanyID = J.CompanyID
 WHERE J.Salary > @AverageSalary;
 
 -- Task 17: Query to display a list of applicants with their names and a concatenated string of their city and state
-SELECT A.FirstName, A.LastName, C.Location + ', ' + C.State AS 'City and State'
-FROM Applicants A
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-INNER JOIN Jobs J ON Ap.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID;
+
 
 -- Task 18: Query to retrieve a list of jobs with titles containing either 'Developer' or 'Engineer'
 SELECT JobID, JobTitle
@@ -191,8 +180,6 @@ FROM Jobs
 WHERE JobTitle LIKE '%Developer%' OR JobTitle LIKE '%Engineer%';
 
 -- Task 19: Query to retrieve a list of applicants and the jobs they have
-
- applied for, including those who have not applied and jobs without applicants
 SELECT A.FirstName, A.LastName, ISNULL(C.CompanyName, 'Not Applied') AS 'Company Name', ISNULL(J.JobTitle, 'Not Applied') AS 'Job Title'
 FROM Applicants A
 FULL OUTER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
@@ -200,190 +187,5 @@ FULL OUTER JOIN Jobs J ON Ap.JobID = J.JobID
 FULL OUTER JOIN Companies C ON J.CompanyID = C.CompanyID;
 
 -- Task 20: List all combinations of applicants and companies where the company is in a specific city and the applicant has more than 2 years of experience
-DECLARE @CityToCheck VARCHAR(255) = 'Chennai';
 
-SELECT A.FirstName, A.LastName, C.CompanyName
-FROM Applicants A
-CROSS JOIN Companies C
-INNER JOIN Jobs J ON C.CompanyID = J.CompanyID
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID AND J.JobID = Ap.JobID
-WHERE C.Location = @CityToCheck
-AND A.Resume LIKE '%2 years of experience%';
-``` VARCHAR(255),
-        Location VARCHAR(255)
-    );
-END
-GO
 
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Jobs')
-BEGIN
-    -- Create the Jobs table
-    CREATE TABLE Jobs (
-        JobID INT PRIMARY KEY IDENTITY(1,1),
-        CompanyID INT,
-        JobTitle VARCHAR(255),
-        JobDescription TEXT,
-        JobLocation VARCHAR(255),
-        Salary DECIMAL(10, 2),
-        JobType VARCHAR(50),
-        PostedDate DATE,
-        FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID)
-    );
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Applicants')
-BEGIN
-    -- Create the Applicants table
-    CREATE TABLE Applicants (
-        ApplicantID INT PRIMARY KEY IDENTITY(1,1),
-        FirstName VARCHAR(100),
-        LastName VARCHAR(100),
-        Email VARCHAR(255),
-        Phone VARCHAR(20),
-        Resume TEXT
-    );
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Applications')
-BEGIN
-    -- Create the Applications table
-    CREATE TABLE Applications (
-        ApplicationID INT PRIMARY KEY IDENTITY(1,1),
-        JobID INT,
-        ApplicantID INT,
-        ApplicationDate DATE,
-        CoverLetter TEXT,
-        FOREIGN KEY (JobID) REFERENCES Jobs(JobID),
-        FOREIGN KEY (ApplicantID) REFERENCES Applicants(ApplicantID)
-    );
-END
-GO
-
--- Task 2: Tables created successfully with appropriate constraints
-
--- Task 3: Data insertion script can be used as provided in the original script
-
--- Task 4: Data inserted successfully
-
--- Task 5: Query to count the number of applications received for each job listing
-SELECT J.JobTitle AS 'Job Title', ISNULL(COUNT(A.ApplicationID), 0) AS 'Application Count'
-FROM Jobs J
-LEFT JOIN Applications A ON J.JobID = A.JobID
-GROUP BY J.JobTitle;
-
--- Task 6: Query to retrieve job listings within a specified salary range
-DECLARE @MinSalary DECIMAL(10, 2) = 60000;
-DECLARE @MaxSalary DECIMAL(10, 2) = 80000;
-
-SELECT J.JobTitle, C.CompanyName, J.JobLocation, J.Salary
-FROM Jobs J
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID
-WHERE J.Salary BETWEEN @MinSalary AND @MaxSalary;
-
--- Task 7: Query to retrieve job application history for a specific applicant
-DECLARE @ApplicantID INT = 1; -- Specify the ApplicantID here
-
-SELECT J.JobTitle, C.CompanyName, A.ApplicationDate
-FROM Applications A
-INNER JOIN Jobs J ON A.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID
-WHERE A.ApplicantID = @ApplicantID;
-
--- Task 8: Query to calculate and display the average salary offered by all companies
-SELECT AVG(Salary) AS 'Average Salary'
-FROM Jobs
-WHERE Salary > 0;
-
--- Task 9: Query to identify the company that has posted the most job listings
-SELECT TOP 1 C.CompanyName, COUNT(J.JobID) AS 'Job Count'
-FROM Companies C
-LEFT JOIN Jobs J ON C.CompanyID = J.CompanyID
-GROUP BY C.CompanyName
-ORDER BY COUNT(J.JobID) DESC;
-
--- Task 10: Query to find applicants who have applied for positions in companies located in a specific city and have at least 3 years of experience
-DECLARE @City VARCHAR(255) = 'Chennai';
-
-SELECT DISTINCT A.FirstName, A.LastName
-FROM Applicants A
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-INNER JOIN Jobs J ON Ap.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID
-WHERE C.Location = @City
-AND A.Resume LIKE '%3 years of experience%';
-
--- Task 11: Query to retrieve a list of distinct job titles with salaries between $60,000 and $80,000
-SELECT DISTINCT JobTitle, Salary
-FROM Jobs
-WHERE Salary BETWEEN 60000 AND 80000;
-
--- Task 12: Query to find the jobs that have not received any applications
-SELECT JobID, JobTitle
-FROM Jobs
-WHERE JobID NOT IN (SELECT DISTINCT JobID FROM Applications);
-
--- Task 13: Query to retrieve a list of job applicants along with the companies and positions they have applied for
-SELECT A.FirstName, A.LastName, C.CompanyName, J.JobTitle
-FROM Applicants A
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-INNER JOIN Jobs J ON Ap.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID;
-
--- Task 14: Query to retrieve a list of companies along with the count of jobs they have posted
-SELECT C.CompanyName, ISNULL(COUNT(J.JobID), 0) AS 'Job Count'
-FROM Companies C
-LEFT JOIN Jobs J ON C.CompanyID = J.CompanyID
-GROUP BY C.CompanyName;
-
--- Task 15: Query to list all applicants along with the companies and positions they have applied for, including those who have not applied
-SELECT A.FirstName, A.LastName, ISNULL(C.CompanyName, 'Not Applied') AS 'Company Name', ISNULL(J.JobTitle, 'Not Applied') AS 'Job Title'
-FROM Applicants A
-LEFT JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-LEFT JOIN Jobs J ON Ap.JobID = J.JobID
-LEFT JOIN Companies C ON J.CompanyID = C.CompanyID;
-
--- Task 16: Query to find companies that have posted jobs with a salary higher than the average salary of all jobs
-DECLARE @AverageSalary DECIMAL(10, 2);
-SELECT @AverageSalary = AVG(Salary)
-FROM Jobs
-WHERE Salary > 0;
-
-SELECT C.CompanyName
-FROM Companies C
-INNER JOIN Jobs J ON C.CompanyID = J.CompanyID
-WHERE J.Salary > @AverageSalary;
-
--- Task 17: Query to display a list of applicants with their names and a concatenated string of their city and state
-SELECT A.FirstName, A.LastName, C.Location + ', ' + C.State AS 'City and State'
-FROM Applicants A
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-INNER JOIN Jobs J ON Ap.JobID = J.JobID
-INNER JOIN Companies C ON J.CompanyID = C.CompanyID;
-
--- Task 18: Query to retrieve a list of jobs with titles containing either 'Developer' or 'Engineer'
-SELECT JobID, JobTitle
-FROM Jobs
-WHERE JobTitle LIKE '%Developer%' OR JobTitle LIKE '%Engineer%';
-
--- Task 19: Query to retrieve a list of applicants and the jobs they have
-
- applied for, including those who have not applied and jobs without applicants
-SELECT A.FirstName, A.LastName, ISNULL(C.CompanyName, 'Not Applied') AS 'Company Name', ISNULL(J.JobTitle, 'Not Applied') AS 'Job Title'
-FROM Applicants A
-FULL OUTER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID
-FULL OUTER JOIN Jobs J ON Ap.JobID = J.JobID
-FULL OUTER JOIN Companies C ON J.CompanyID = C.CompanyID;
-
--- Task 20: List all combinations of applicants and companies where the company is in a specific city and the applicant has more than 2 years of experience
-DECLARE @CityToCheck VARCHAR(255) = 'Chennai';
-
-SELECT A.FirstName, A.LastName, C.CompanyName
-FROM Applicants A
-CROSS JOIN Companies C
-INNER JOIN Jobs J ON C.CompanyID = J.CompanyID
-INNER JOIN Applications Ap ON A.ApplicantID = Ap.ApplicantID AND J.JobID = Ap.JobID
-WHERE C.Location = @CityToCheck
-AND A.Resume LIKE '%2 years of experience%';
-```
