@@ -43,7 +43,7 @@
 
 ## TASK 1.2 Insert Value Into The Table
 
-### Create Tables
+### Create Table
 
 #### Users Table
 ```sql
