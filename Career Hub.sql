@@ -89,7 +89,7 @@ INSERT INTO Applications (JobID, ApplicantID, ApplicationDate, CoverLetter) VALU
 (5, 1, '2023-04-05', 'I am also interested in the Software Engineer position at CodeCrafters.');
 
 -- Task 4: Ensure the script handles potential errors, such as if the database or tables already exist.
-
+Checked
 
 -- Task 5: Query to count the number of applications received for each job listing
 SELECT J.JobTitle AS 'Job Title', ISNULL(COUNT(A.ApplicationID), 0) AS 'Application Count'
